@@ -1,0 +1,13 @@
+cff-version: 1.2.0
+message: "If you use VerQen, please cite it as below."
+title: "VerQen: an open decision model"
+type: software
+authors:
+  - name: "ZorQelis AI"
+    website: "https://zorqelisai.com"
+repository-code: "https://github.com/ZorQelis-AI/verqen"
+url: "https://huggingface.co/zorqelis-ai/VerQen"
+license: Apache-2.0
+version: "1.0.0"
+date-released: "2026-09-27"
+keywords: [decision model, calibration, typed decisions, benchmark, ZDS-1]

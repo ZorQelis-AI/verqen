@@ -1,0 +1,19 @@
+# Tiny end-to-end smoke test of every T2 stage (CPU or one small GPU, minutes).
+model: {hidden_size: 64, num_layers: 2, num_heads: 2, head_dim: 32, ffn_size: 128, set_layers: 1, max_seq_len: 128}
+training: {batch_rows: 4, micro_rows: 1, max_steps: 20, warmup_steps: 2, eval_every: 10, compile: false, learning_rate: 0.001, seed: 42}
+data: {tokenizer_path: data/tokenizer/verqen_32k.json, max_seq_len: 512, decision_dir: data/decision/v3_smoke}
+logging: {output_dir: runs/smoke_v3, log_every: 5}
+pretrain:
+  objective: rtd
+  seq_len: 128
+  gen_layers: 1
+  mask_prob: 0.15
+  val_holdout_tokens: 100000
+  save_minutes: 0.2
+  ext_seq_len: 256
+  ext_rope_base: 80000.0
+  ext_micro_rows: 1
+  sources:
+    - {path: data/pretrain/smoke/web.bin, weight: 3, name: web}
+    - {path: data/pretrain/smoke/math.bin, weight: 1, name: math}
+stages: {pretrain: 0.02, pretrain_ext: 0.01, decisions: 0.02, rlcd: 0.02}

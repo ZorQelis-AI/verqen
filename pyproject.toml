@@ -1,0 +1,37 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "verqen"
+version = "1.0.0"
+description = "VerQen: an open decision model by ZorQelis AI"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "torch>=2.5",
+    "numpy",
+    "pyyaml",
+    "safetensors",
+    "tokenizers",
+    "scipy",
+    "datasets",
+    "pyarrow",
+    "huggingface_hub"
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest"
+]
+eval = [
+    "matplotlib",
+    "psutil"
+]
+
+[project.scripts]
+verqen = "verqen.__main__:main"
+
+[tool.setuptools.packages.find]
+include = ["verqen*"]
+

@@ -1,0 +1,70 @@
+# VerQen-T2 production run: from scratch on 2x RTX 5090 (31.4 GB usable each), 25 h wall clock.
+# Plan and rationale: docs/production/T2_PLAN.md. Every number here was fixed before the run.
+model:
+  name: verqen-t2-base
+  hidden_size: 768
+  num_layers: 27          # 232.2M params total (207.0M non-embedding); chosen 25 Sep over 24L (210.9M): deep-narrow
+                          # suits small models, depth is what multi-step rules need, and 232M sits at the
+                          # compute optimum for the box's measured-low throughput (T2_PLAN.md section 3.1)
+  num_heads: 12
+  head_dim: 64
+  ffn_size: 2048
+  vocab_size: 32768       # overwritten from the tokenizer
+  max_seq_len: 2048
+  set_layers: 2
+  qk_norm: true
+training:
+  seed: 42
+  learning_rate: 0.0008
+  min_lr_ratio: 0.1
+  weight_decay: 0.1
+  warmup_steps: 1500
+  decay_ratio: 0.2
+  batch_rows: 128         # global rows per optimizer step (split over 2 GPUs x micro x accum)
+  micro_rows: 32          # per GPU per micro-step at 512 tokens; the throughput probe may lower it
+  max_steps: 1000000      # the wall-clock budget ends every stage, not this
+  eval_every: 2000
+  compile: true
+loss:
+  brier_weight: 0.5
+  rps_weight: 1.0
+  selective_weight: 0.1
+data:
+  tokenizer_path: data/pretrain/v3/tokenizer_v3_32k.json
+  decision_dir: data/decision/v3
+  max_seq_len: 1024       # decisions / RLCD rows
+logging:
+  output_dir: runs/verqen-t2
+  log_every: 100
+pretrain:
+  objective: mlm          # switched 25 Sep by the pre-registered local A/B (T2_PLAN.md section 7): decision val acc MLM 0.622 vs RTD 0.431; Jev-parity 48.8% vs 29.0%
+  seq_len: 512
+  mask_prob: 0.15
+  gen_layers: 7           # RTD generator ~1/4 of the discriminator depth (27 / 4)
+  rtd_weight: 50.0
+  val_holdout_tokens: 2000000
+  save_minutes: 20
+  ext_seq_len: 2048
+  ext_rope_base: 80000.0
+  ext_micro_rows: 8
+  planned_corpus_tokens: 3950000000   # scripts/v3/prepare_pretrain.py PLAN; preflight scales it by data_scale
+  sources:
+    - {path: data/pretrain/v3/fineweb_edu.bin, weight: 60, name: fineweb_edu}
+    - {path: data/pretrain/v3/cosmopedia.bin, weight: 15, name: cosmopedia}
+    - {path: data/pretrain/v3/finemath.bin, weight: 8, name: finemath}
+    - {path: data/pretrain/v3/wikipedia.bin, weight: 8, name: wikipedia}
+    - {path: data/pretrain/v3/synthetic.bin, weight: 9, name: structured_and_decision_text}
+# Model size is MEASURED on the box (production/preflight.py): each candidate's pretraining
+# throughput gives projected tokens D in the stage budget; "auto" picks the candidate closest to
+# D = 20 N (compute-optimal). Set size_rule to a candidate name to force it. 64 GB of VRAM only
+# decides what fits; compute decides D (T2_PLAN.md section 3.1).
+# Fixed at 232M by decision (25 Sep). To let the box choose again, list more candidates and set
+# size_rule: auto, e.g. {name: t2-360m, hidden_size: 1024, num_heads: 16, ffn_size: 3072, num_layers: 24, learning_rate: 0.0006}
+size_rule: t2-232m
+size_candidates:
+  - {name: t2-232m, hidden_size: 768, num_heads: 12, ffn_size: 2048, num_layers: 27, learning_rate: 0.0008}   # 232.2M total, 207.0M non-embedding
+stages:                   # wall-clock hours per stage (T2_PLAN.md section 3)
+  pretrain: 13.0
+  pretrain_ext: 1.5
+  decisions: 4.5
+  rlcd: 2.0

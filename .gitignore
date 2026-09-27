@@ -1,0 +1,16 @@
+__pycache__/
+*.pyc
+.pytest_cache/
+*.egg-info/
+.venv/
+runs/
+logs/
+data/decision/
+data/pretrain/*
+!data/pretrain/v3/
+data/pretrain/v3/*
+!data/pretrain/v3/tokenizer_v3_32k.json
+configs/v3/*.box*.yaml
+*.safetensors
+*.pt
+.env
