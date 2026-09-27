@@ -12,7 +12,7 @@ State in, decision out: one option, a calibrated probability, and a flag for whe
 [![Benchmark: ZDS-1](https://img.shields.io/badge/benchmark-ZDS--1-111111?style=flat-square&labelColor=0b0b0b&color=D6FF4B)](https://huggingface.co/datasets/zorqelis-ai/zds-1)
 [![Training data](https://img.shields.io/badge/data-1.62M_decisions-111111?style=flat-square&labelColor=0b0b0b&color=D6FF4B)](https://huggingface.co/datasets/zorqelis-ai/verqen-decisions)
 
-[What it is](#what-it-is) · [Quickstart](#quickstart) · [Results](#results-on-zds-1) · [Where to use it](#where-to-use-it) · [How it was built](#how-it-was-built) · [Reproduce](#reproduce-it) · [Website](https://zorqelisai.com/blog)
+[What it is](#what-it-is) · [Quickstart](#quickstart) · [Results](#results-on-zds-1) · [Where to use it](#where-to-use-it) · [How it was built](#how-it-was-built) · [Reproduce](#reproduce-it) · [Launch post](https://zorqelisai.com/blog/introducing-verqen-open-decision-model)
 
 </div>
 
